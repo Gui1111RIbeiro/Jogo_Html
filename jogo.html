@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>                                               
+
+
+    <head>
+        <meta charset="UTF-8"/>
+        <title>    jogo    </title>
+        <script src="sprite.js"></script>               
+        
+        <script>       //sprite.js anexando a pasta no arquivo  // canvas = criando a tela do jogo e colocando no meio da tela da pessoa </script>
+                                                
+        <style>
+
+                                 
+            canvas {
+               position: absolute;
+               top: 0px;
+               bottom: 0px;                                           
+               left: 0px;
+               right: 0px;      
+               margin: auto;
+            }            
+
+
+         </style> 
+    </head>
+    <body>
+        
+        <script>
+             
+            var canvas, ctx, ALTURA, LARGURA, maxPulos=3,velocidade= 6, estadoAtual, record,img,  //     variaveis globais
+
+            estados = {
+                jogar:0,
+                jogando:1,              //criando estados do jogo 
+                perdeu:2
+                 
+            },
+
+            chao ={                               
+                y: 450,           // medindo a base do chao 
+                x:0,
+                altura: 50,
+                atualiza: function (){
+                    this.x -= velocidade;
+                    if (this.x <= -600)    
+                        this.x=0;                      //fazendo a sequencia do chao, se o x do chao e 600 ele fica em um lop infi
+                },
+
+                desenha: function(){
+                    spriteChao.desenha(this.x,this.y);
+                    spriteChao.desenha(this.x + spriteChao.largura,this.y); //criando 2 chaos para completar a tela 
+                }
+            },
+
+            bloco ={                         //criando o qbert (bloco)
+                x:50,
+                y:0,
+                altura:spriteBoneco.altura,
+                largura:spriteBoneco.largura,        
+                gravidade: 1.5,
+                velocidade:0,
+                forcaDoPulo:20,                        // controlando suas açoes  gravidade, velocidade,força do pulo 
+                qntPulos:0,
+                score: 0,
+
+                atualiza: function(){
+                    this.velocidade += this.gravidade;                      
+                    this.y += this.velocidade;
+
+                    if (this.y > chao.y - this.altura && estadoAtual != estados.perdeu ){
+                        
+                        this.y = chao.y - this.altura;                   //atribuindo a animaçao de perdeu o qbert caindo 
+                        this.qntPulos=0;
+                        this.velocidade=0;
+                    }
+                },
+                pula: function(){
+                    if (this.qntPulos < maxPulos){
+                        this.velocidade = -this.forcaDoPulo; // sempre q der 1 pulo aumenta a 1 na variavel qntpulos q vai entrar em conflito
+                                                             // com a max pulos quando atingir 3 e os pulos seram bloqueados
+                        this.qntPulos++;
+                    }
+                },
+
+                reset:function(){
+                    this.velocidade=0;
+                    this.y =0;
+                    if (this.score > record) {                                // gravando o record no localstorage f12/application/localstorage/file
+					record = this.score;
+					localStorage.setItem("record", this.score);
+				}
+                    
+
+                    this.score=0;
+                },
+                desenha: function(){
+                    spriteBoneco.desenha(this.x,this.y,)                                 //desenhando o personagem dentro do canvas que e a tela do jogo
+                }
+            },
+            obstaculos = {
+                    _obs:[],
+
+                    cores:["#000000","#808080","#0000FF","#7FFFD4","#D2691E"],
+                    tempoInsere:0,
+
+                    insere: function(){
+                        this._obs.push({
+                            x:LARGURA,                                                           //criando os osbtaculos 
+                            //largura: 30 + Math.floor(21 * Math.random()),
+                            largura: 50,
+                            altura: 30 + Math.floor(120 * Math.random()),
+                            cor: this.cores[Math.floor(5 * Math.random())]
+                        });
+                        this.tempoInsere = 40 + Math.floor(21 * Math.random());     // colocando os obstaculos para vim em tempos aleatorios
+                    },
+                    atualiza: function(){
+
+                        if (this.tempoInsere == 0 )
+                            this.insere();
+                        else
+                            this.tempoInsere--;                                                  
+
+                        for (var i = 0, tam = this._obs.length; i< tam; i++){        
+                            var obs = this._obs[i];
+
+                            obs.x -= velocidade;
+
+                            if(bloco.x < obs.x + obs.largura && bloco.x+ bloco.largura >=obs.x && 
+                                bloco.y+bloco.altura >= chao.y-obs.altura)                               //funçao q faz o conflito de encostar 
+                            
+                                estadoAtual = estados.perdeu;                                            // quando o qbert tem suas coordenadas em conflito com a do 
+                                                                                                         // obstaculo o estado.perdeu e ativado
+                            
+                            else if (obs.x == 0)
+                                bloco.score++;
+
+                            else if (obs.x <= -obs.largura){
+                    
+                                this._obs.splice(i,1);                                      
+                                tam--;
+                                i--;
+                            }
+                        }
+                    },
+                limpa: function(){
+                    this._obs = [];                                 //funçao para limpar blocos
+
+                },
+                desenha: function(){
+                    for (var i = 0, tam=this._obs.length; i< tam; i++) {
+                        var obs = this._obs[i];
+                        ctx.fillStyle = obs.cor;                                          // colocando os obstaculos na medida
+                        ctx.fillRect(obs.x, chao.y - obs.altura, obs.largura, obs.altura);              
+                    }
+                }
+            };
+            function clique(event){                      
+                if(estadoAtual == estados.jogando)                   // criando o efeito de pular ao clicar o mouse 
+					bloco.pula();
+
+				else if(estadoAtual == estados.jogar){
+					estadoAtual = estados.jogando;                   
+				}
+				
+				else if(estadoAtual == estados.perdeu && bloco.y >= 4* ALTURA){
+					estadoAtual = estados.jogar;
+					obstaculos.limpa();                     //quando o estado do jogo esta em perdeu os blocos sao excluidos e resetados ate o estado jogando estiver ativo
+                    bloco.reset();
+				}
+            }
+            function main (){
+               ALTURA = window.innerHeight;
+               LARGURA = window.innerWidth;
+
+               if(LARGURA >= 500){                                     // colocando as medida do canvas 
+                   LARGURA=600;
+                   ALTURA=500;
+               }
+
+               canvas = document.createElement("canvas");
+               canvas.width=LARGURA;
+               canvas.height=ALTURA;                                      
+               canvas.style.border= "1px solid #3d3d3d";
+
+               ctx= canvas.getContext("2d");
+               document.body.appendChild(canvas);                   
+               document.addEventListener("mousedown", clique);          // 
+               estadoAtual = estados.jogar;
+
+               record = localStorage.getItem("record");       //grava o record no localstorage
+
+			if (record == null)
+				record = 0;
+
+                img = new Image();
+			img.src = "imagens/sheet.png";                        // colocando a imagem de fundo sheet.png
+
+               roda();      //esse comando faz o jogo começar
+           }
+
+            function roda(){
+                // atualizando e desenhando o jogo
+                atualiza();
+                desenha();
+                 window.requestAnimationFrame(roda);                     //comando para fazer o jogo rodar 
+            }
+
+            function atualiza(){
+                
+                bloco.atualiza();
+                if(estadoAtual == estados.jogando){
+					
+					obstaculos.atualiza();                      //enquanto o jogo estiver no estado jogando o chao e os obstaculos nao iram para de aparecer
+                    chao.atualiza();
+				}
+
+            }
+
+            function desenha(){                                   
+                bg.desenha(0,0);
+                //ctx.fillStyle = "#50beff";
+                //ctx.fillRect(0,0,LARGURA,ALTURA);                      //puxando aa funçao bg do sprit.js que especifica a localizaçao q a imagem deve se localizar
+
+                obstaculos.desenha();
+
+               
+                    
+
+                chao.desenha();
+                
+                bloco.desenha();
+                
+
+                ctx.fillStyle = "#ffffff";
+                ctx.font ="50px Arial";
+                ctx.fillText(bloco.score, 30 , 60);               // criando o placar 
+
+                if (estadoAtual == estados.jogar)
+                    
+                jogar.desenha(LARGURA / 2 - jogar.largura / 2, ALTURA / 2 - jogar.altura / 2);
+                
+                if (estadoAtual == estados.perdeu) {
+				perdeu.desenha(LARGURA / 2 - perdeu.largura / 2, ALTURA / 2 - perdeu.altura / 2 );      // endireitando as imagens dos estados jogar e perdeu
+               
+                }
+            }
+
+            
+            main();
+        </script>
+    </body>
+</html>
