@@ -21,7 +21,7 @@ Game in Html
 
 # Project Description
 
-This project was developed as part of my study on the flutter framework. I was curious how to develop a mobile app, so I started to study and develop many apps to improve. [Describe]
+[Describe]
 
 # 📁 Access the Project
 
@@ -29,9 +29,9 @@ This project was developed as part of my study on the flutter framework. I was c
 
 # 🔨 Project Features
 
-- `Feature 1`: icon image
-- `Feature 2`: split screen 
-- `Feature 3`: compatible for both devices IOS and Android
+- `Feature 1`: jump with the character
+- `Feature 2`: restart the game
+- `Feature 3`: this code used only html
 
 # ▶ Run the Project
 
