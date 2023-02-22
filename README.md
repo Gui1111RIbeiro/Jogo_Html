@@ -31,7 +31,7 @@ Game in Html
 
 - `Feature 1`: jump with the character
 - `Feature 2`: restart the game
-- `Feature 3`: this code used only html
+- `Feature 3`: this code used html as main language
 
 # ▶ Run the Project
 
