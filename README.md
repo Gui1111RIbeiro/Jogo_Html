@@ -25,7 +25,7 @@ Game in Html
 
 # 📁 Access the Project
 
-**Is found in Github: "https://github.com/Gui1111RIbeiro/Jogo_Html"**
+**Is found in Github: "https://github.com/GuiQueirozRibeiro/Jogo_Html"**
 
 # 🔨 Project Features
 
