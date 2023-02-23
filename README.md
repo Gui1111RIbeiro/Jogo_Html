@@ -21,7 +21,7 @@ Game in Html
 
 # Project Description
 
-[Describe]
+This project was one of the first ones I did, I was wanting to learn html and create my own dinosaur game. This project was very simple and fun, I used funny images in order to play a little
 
 # 📁 Access the Project
 
